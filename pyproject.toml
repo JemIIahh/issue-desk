@@ -1,0 +1,28 @@
+[project]
+name = "issue-desk"
+version = "0.1.0"
+description = "Switch agents that triage issue floods and compare competing PRs."
+license = "MIT"
+readme = "README.md"
+authors = [
+    { name = "JemIIahh", email = "275022204+JemIIahh@users.noreply.github.com" }
+]
+requires-python = ">=3.12"
+dependencies = []
+
+[project.scripts]
+issue-desk = "issue_desk.cli:main"
+
+[build-system]
+requires = ["uv_build>=0.10.2,<0.11.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.2.0",
+    "pyyaml>=6.0.3",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["docker: needs a running Docker daemon"]
