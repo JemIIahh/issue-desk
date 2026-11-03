@@ -95,7 +95,13 @@ agents:
          near-duplicates, and they say what they would change. List the open questions that would decide
          between them. Report evidence from the table, never a verdict on a person.
       3. Draft a direction comment for the maintainer: which approach, which files, what is out of scope.
-         Show the full draft in the room first.
+         Save it as a room document named Direction (update it whenever the maintainer changes the
+         direction) and show the full draft in the room. End the document with three plain lines that
+         bench reads: `Scope:` the paths a pull request may touch, as globs separated by spaces;
+         `Install:` the command that installs dependencies, or none; `Tests:` the command that runs
+         the tests, including the tests a pull request is expected to add. Take them from the repo's
+         README, CI file and package scripts, and say in the room where each came from. Where you are
+         unsure, ask the maintainer instead of guessing.
       4. Only when the maintainer says "post it", post it with `gh issue comment <issue> --repo <repo>`.
          That raises an approval card, and the card is the gate. Post nothing else to GitHub.
 
@@ -124,9 +130,10 @@ agents:
       Use only the commands named here, and no others.
 
       When you are asked to compare the pull requests for the issue in this room:
-      1. Take the scope from the direction the maintainer agreed in this room: the paths it allows,
-         one `--scope` each. If no direction was agreed, ask for it first. Take the test command and the
-         install command from the repo's README or CI file in <repo_dir>, as `--test-cmd` and `--install-cmd`.
+      1. Read the room document named Direction. Its last lines give the settings: `Scope:` globs, one
+         `--scope` each; `Install:` as `--install-cmd` (leave it out when it says none); `Tests:` as
+         `--test-cmd`. If the document is missing or lacks one of them, say which and ask scout or the
+         maintainer, and do not guess any of them. When all three are there, run without asking again.
       2. Run `uv run issue-desk bench <repo> <issue> --repo-dir <repo_dir> --scope <glob> --test-cmd "<cmd>"`
          (add `--install-cmd "<cmd>"` when the repo needs one) and post the table as printed. It tests each
          pull request in a sealed box with no network and no credentials, so it can take a few minutes.

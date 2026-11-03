@@ -148,6 +148,23 @@ def test_bench_instructions_say_how_to_compare_and_post_only_through_the_card():
     assert "never merge" in text.lower()
 
 
+def instructions(name):
+    return next(a for a in HUB["agents"] if a["name"] == name)["instructions"]
+
+
+def test_scout_saves_the_direction_as_a_room_document_that_ends_with_scope_install_and_tests_lines():
+    text = instructions("scout")
+    for needed in ("room document named Direction", "Scope:", "Install:", "Tests:"):
+        assert needed in text, needed
+
+
+def test_bench_reads_scope_install_and_tests_from_the_direction_document_and_never_guesses_them():
+    text = instructions("bench")
+    for needed in ("room document named Direction", "Scope:", "Install:", "Tests:", "do not guess"):
+        assert needed in text, needed
+    assert "README or CI" not in text  # the old source: it cannot name a PR's own new test file
+
+
 def test_patterns_accept_real_values_because_switch_matches_the_whole_value():
     samples = {
         "checkout": "/Users/ram/Desktop/issue-desk",
