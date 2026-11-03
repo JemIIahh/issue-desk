@@ -19,13 +19,16 @@ from triage_kit.bench import (
 from triage_kit.claims import anonymise, build_scorecard, render_scorecard
 from triage_kit.gh import GhError, GitError, Runner, fetch_issue, list_open_issue_summaries, list_open_prs, run_gh, run_git
 from triage_kit.models import Issue, PullRequest
+from triage_kit.seed import seed_practice
 from triage_kit.mirror import mirror_issue
 from triage_kit.sweep import hot_issues, render_sweep
 
-UNBUILT = ("seed-practice", "doctor")
+UNBUILT = ("doctor",)
 # Pull-request checkouts live here, outside every folder an agent works in, so a PR's own
 # CLAUDE.md or .claude/ is never loaded by an agent.
 DEFAULT_WORK_ROOT = Path.home() / ".cache" / "issue-desk" / "work"
+# The practice patches ship with the repo (see fixtures/practice/README.md for where they came from).
+DEFAULT_PRACTICE_DIR = Path(__file__).resolve().parents[2] / "fixtures" / "practice"
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -58,6 +61,12 @@ def build_parser() -> argparse.ArgumentParser:
     bench.add_argument("--base", default="origin/HEAD", help="what each PR is diffed against")
     bench.add_argument("--work-root", default=str(DEFAULT_WORK_ROOT), help=argparse.SUPPRESS)
 
+    seed = sub.add_parser("seed-practice", help="open practice PRs in your own PRIVATE sandbox repo, to rehearse a comparison")
+    seed.add_argument("sandbox_dir", help="a local clone of the private sandbox repo (a copy of the repo the patches apply to)")
+    seed.add_argument("sandbox_repo", help="owner/name of the private sandbox repo")
+    seed.add_argument("issue", type=int, help="the sandbox issue the practice PRs close")
+    seed.add_argument("--practice-dir", default=str(DEFAULT_PRACTICE_DIR), help="folder with BASE and the patches")
+
     for name in UNBUILT:
         stub = sub.add_parser(name)
         stub.add_argument("args", nargs=argparse.REMAINDER)
@@ -68,12 +77,12 @@ Sleeper = Callable[[float], None]
 POST_DELAY = 1.0  # seconds between writes, so a long thread does not trip GitHub's rate limits
 
 
-def cmd_sweep(args: argparse.Namespace, run: Runner, sleep: Sleeper) -> str:
+def cmd_sweep(args: argparse.Namespace, run: Runner, sleep: Sleeper, git: Runner) -> str:
     issues = list_open_issue_summaries(args.repo, args.label, run)
     return render_sweep(hot_issues(issues, list_open_prs(args.repo, run)), args.repo)
 
 
-def cmd_scorecard(args: argparse.Namespace, run: Runner, sleep: Sleeper) -> str:
+def cmd_scorecard(args: argparse.Namespace, run: Runner, sleep: Sleeper, git: Runner) -> str:
     # Authors are replaced before anything is built, so no real login can reach the output.
     issue = anonymise(fetch_issue(args.repo, args.issue, run))
     rows, notes = build_scorecard(issue, Path(args.checkout))
@@ -92,7 +101,7 @@ def paced(run: Runner, sleep: Sleeper, delay: float = POST_DELAY) -> Runner:
     return wrapper
 
 
-def cmd_mirror(args: argparse.Namespace, run: Runner, sleep: Sleeper) -> str:
+def cmd_mirror(args: argparse.Namespace, run: Runner, sleep: Sleeper, git: Runner) -> str:
     new = mirror_issue(args.source, args.issue, args.to, paced(run, sleep))
     return f"Mirrored {args.source}#{args.issue} → {args.to}#{new}"
 
@@ -116,7 +125,7 @@ def author_pseudonyms(issue: Issue, prs: list[PullRequest]) -> dict[str, str]:
     return names
 
 
-def cmd_bench(args: argparse.Namespace, run: Runner, sleep: Sleeper) -> str:
+def cmd_bench(args: argparse.Namespace, run: Runner, sleep: Sleeper, git: Runner) -> str:
     if args.base.startswith("-"):
         raise ValueError(f"--base {args.base!r} looks like an option, not a git ref")
     prs = sorted(prs_for_issue(args.repo, args.issue, run), key=lambda p: p.number)
@@ -137,17 +146,29 @@ def cmd_bench(args: argparse.Namespace, run: Runner, sleep: Sleeper) -> str:
     return render_comparison(results)
 
 
-COMMANDS = {"sweep": cmd_sweep, "scorecard": cmd_scorecard, "mirror": cmd_mirror, "bench": cmd_bench}
+def cmd_seed_practice(args: argparse.Namespace, run: Runner, sleep: Sleeper, git: Runner) -> str:
+    numbers = seed_practice(Path(args.sandbox_dir), args.sandbox_repo, args.issue, Path(args.practice_dir), run, git)
+    listed = ", ".join(f"#{n}" for n in numbers)
+    return f"Opened {len(numbers)} practice PRs in {args.sandbox_repo} for #{args.issue}: {listed}"
 
 
-def main(argv: list[str] | None = None, *, run: Runner = run_gh, sleep: Sleeper = time.sleep) -> int:
+COMMANDS = {
+    "sweep": cmd_sweep,
+    "scorecard": cmd_scorecard,
+    "mirror": cmd_mirror,
+    "bench": cmd_bench,
+    "seed-practice": cmd_seed_practice,
+}
+
+
+def main(argv: list[str] | None = None, *, run: Runner = run_gh, sleep: Sleeper = time.sleep, git: Runner = run_git) -> int:
     args = build_parser().parse_args(argv)
     handler = COMMANDS.get(args.command)
     if handler is None:
         print(f"issue-desk {args.command}: not built yet", file=sys.stderr)
         return 2
     try:
-        print(handler(args, run, sleep))
+        print(handler(args, run, sleep, git))
     except (GhError, GitError, ValueError) as err:
         print(f"issue-desk {args.command}: {err}", file=sys.stderr)
         return 1
