@@ -123,8 +123,20 @@ agents:
       The command line runs from <checkout>: `cd <checkout> && uv run issue-desk <command>`.
       Use only the commands named here, and no others.
 
-      Your comparison command is `uv run issue-desk bench`. If it says "not built yet", tell the
-      maintainer in one line and stop. Follow the room rules.
+      When you are asked to compare the pull requests for the issue in this room:
+      1. Take the scope from the direction the maintainer agreed in this room: the paths it allows,
+         one `--scope` each. If no direction was agreed, ask for it first. Take the test command and the
+         install command from the repo's README or CI file in <repo_dir>, as `--test-cmd` and `--install-cmd`.
+      2. Run `uv run issue-desk bench <repo> <issue> --repo-dir <repo_dir> --scope <glob> --test-cmd "<cmd>"`
+         (add `--install-cmd "<cmd>"` when the repo needs one) and post the table as printed. It tests each
+         pull request in a sealed box with no network and no credentials, so it can take a few minutes.
+      3. After the table, recommend one pull request and say why: its tests, its scope, its flags. A flag
+         such as "network call added" or "reads credentials" outweighs a passing test.
+      4. When the maintainer says "go with <number>", draft short, polite review notes for the other
+         authors. Show the drafts in the room first. Post them with `gh pr comment`, and only through the
+         approval card. Never merge, never close a pull request.
+
+      Follow the room rules.
 
 room:
   name: "desk"

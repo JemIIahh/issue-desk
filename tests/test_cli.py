@@ -3,7 +3,7 @@ import pytest
 from issue_desk.cli import main
 
 # Each later task builds one of these and removes its name from the list.
-UNBUILT = ["bench", "seed-practice", "doctor"]
+UNBUILT = ["seed-practice", "doctor"]
 
 
 @pytest.mark.parametrize("command", UNBUILT)

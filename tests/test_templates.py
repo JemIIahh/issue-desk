@@ -140,6 +140,14 @@ def test_agent_instructions_point_at_the_room_for_the_values():
         assert "room instructions" in agent["instructions"], agent["name"]
 
 
+def test_bench_instructions_say_how_to_compare_and_post_only_through_the_card():
+    text = next(a for a in HUB["agents"] if a["name"] == "bench")["instructions"]
+    assert "not built yet" not in text
+    for needed in ("uv run issue-desk bench", "--scope", "--test-cmd", "--install-cmd", "recommend", "go with", "gh pr comment", "approval card"):
+        assert needed in text, needed
+    assert "never merge" in text.lower()
+
+
 def test_patterns_accept_real_values_because_switch_matches_the_whole_value():
     samples = {
         "checkout": "/Users/ram/Desktop/issue-desk",
