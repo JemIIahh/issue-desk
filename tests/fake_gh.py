@@ -40,3 +40,12 @@ def pr_item(number, title, body, login="someone", ref="branch"):
         "head": {"ref": ref},
         "html_url": f"https://github.com/o/r/pull/{number}",
     }
+
+
+def issue_raw(number, title="An issue", body="", login="owner", assoc="OWNER"):
+    """The single-issue payload; `gh api --paginate --slurp` wraps it in a one-element list."""
+    return {"number": number, "title": title, "body": body, "user": {"login": login}, "author_association": assoc, "labels": []}
+
+
+def comment_item(login, body, assoc="NONE"):
+    return {"user": {"login": login}, "author_association": assoc, "body": body, "created_at": "2026-01-01T00:00:00Z"}

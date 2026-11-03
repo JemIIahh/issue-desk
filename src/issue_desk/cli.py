@@ -2,11 +2,13 @@
 
 import argparse
 import sys
+from pathlib import Path
 
-from triage_kit.gh import GhError, GitError, Runner, list_open_issue_summaries, list_open_prs, run_gh
+from triage_kit.claims import anonymise, build_scorecard, render_scorecard
+from triage_kit.gh import GhError, GitError, Runner, fetch_issue, list_open_issue_summaries, list_open_prs, run_gh
 from triage_kit.sweep import hot_issues, render_sweep
 
-UNBUILT = ("scorecard", "mirror", "bench", "seed-practice", "doctor")
+UNBUILT = ("mirror", "bench", "seed-practice", "doctor")
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -16,6 +18,12 @@ def build_parser() -> argparse.ArgumentParser:
     sweep = sub.add_parser("sweep", help="list the issues drawing the most claims and competing PRs")
     sweep.add_argument("repo", help="owner/name")
     sweep.add_argument("--label", help="only issues with this label")
+
+    card = sub.add_parser("scorecard", help="score the claim comments on one issue, with evidence")
+    card.add_argument("repo", help="owner/name")
+    card.add_argument("issue", type=int)
+    card.add_argument("--checkout", required=True, help="a local clone of the repo, to check the files plans name")
+    card.add_argument("--full", action="store_true", help="show every row, not just the first 10")
 
     for name in UNBUILT:
         stub = sub.add_parser(name)
@@ -28,7 +36,14 @@ def cmd_sweep(args: argparse.Namespace, run: Runner) -> str:
     return render_sweep(hot_issues(issues, list_open_prs(args.repo, run)), args.repo)
 
 
-COMMANDS = {"sweep": cmd_sweep}
+def cmd_scorecard(args: argparse.Namespace, run: Runner) -> str:
+    # Authors are replaced before anything is built, so no real login can reach the output.
+    issue = anonymise(fetch_issue(args.repo, args.issue, run))
+    rows, notes = build_scorecard(issue, Path(args.checkout))
+    return render_scorecard(rows, notes, None if args.full else 10)
+
+
+COMMANDS = {"sweep": cmd_sweep, "scorecard": cmd_scorecard}
 
 
 def main(argv: list[str] | None = None, *, run: Runner = run_gh) -> int:
