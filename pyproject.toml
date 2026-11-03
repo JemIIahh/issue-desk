@@ -8,7 +8,9 @@ authors = [
     { name = "JemIIahh", email = "275022204+JemIIahh@users.noreply.github.com" }
 ]
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "triage-kit",
+]
 
 [project.scripts]
 issue-desk = "issue_desk.cli:main"
@@ -26,3 +28,6 @@ dev = [
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 markers = ["docker: needs a running Docker daemon"]
+
+[tool.uv.sources]
+triage-kit = { git = "https://github.com/JemIIahh/triage-kit" }
