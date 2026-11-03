@@ -158,6 +158,17 @@ def test_scout_saves_the_direction_as_a_room_document_that_ends_with_scope_insta
         assert needed in text, needed
 
 
+def test_desk_runs_the_real_doctor_and_does_not_say_it_is_unbuilt():
+    text = instructions("desk")
+    assert "uv run issue-desk doctor" in text and "not built yet" not in text
+
+
+def test_scout_keeps_the_direction_body_inside_the_scope_line():
+    text = " ".join(instructions("scout").lower().split())  # ignore line wraps
+    assert "must not ask for changes to files outside" in text
+    assert "rewrite the body" in text
+
+
 def test_scout_keeps_the_three_settings_lines_off_the_comment_it_posts():
     assert "leave those three lines out of the comment you post" in instructions("scout").lower()
 

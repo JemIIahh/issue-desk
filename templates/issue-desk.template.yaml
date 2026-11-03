@@ -59,8 +59,8 @@ agents:
       - "digest": read every linked room (list_linked_rooms, then read_context) and post three short
         lists: came in, decided, waiting on you. Name each room. Say how many comments you read and
         how many PRs were compared.
-      - "doctor": run `uv run issue-desk doctor` and report what it prints. If it says "not built yet",
-        say so in one line.
+      - "doctor": run `uv run issue-desk doctor` and report what it prints: one line per check, and for
+        every line that starts with ✗ say in plain words what the maintainer should fix.
 
       You never write to GitHub. If the maintainer asks you to post something, say which agent drafts it
       and that it goes out only through their approval card. Never run `mirror` or `seed-practice`:
@@ -101,7 +101,9 @@ agents:
          `Install:` the command that installs dependencies, or none; `Tests:` the command that runs
          the tests, including the tests a pull request is expected to add. Take them from the repo's
          README, CI file and package scripts, and say in the room where each came from. Where you are
-         unsure, ask the maintainer instead of guessing.
+         unsure, ask the maintainer instead of guessing. The body must not ask for changes to files
+         outside the `Scope:` paths; when the maintainer changes the scope, rewrite the body to match
+         and say what you changed.
       4. Only when the maintainer says "post it", post it with `gh issue comment <issue> --repo <repo>`.
          Leave those three lines out of the comment you post: they are for bench, not for GitHub.
          That raises an approval card, and the card is the gate. Post nothing else to GitHub.
