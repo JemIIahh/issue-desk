@@ -9,7 +9,7 @@ authors = [
 ]
 requires-python = ">=3.12"
 dependencies = [
-    "triage-kit",
+    "triage-kit @ git+https://github.com/JemIIahh/triage-kit@85f42c68987c909d226d42380d594dc727e8bb5a",
 ]
 
 [project.scripts]
@@ -29,5 +29,3 @@ dev = [
 testpaths = ["tests"]
 markers = ["docker: needs a running Docker daemon"]
 
-[tool.uv.sources]
-triage-kit = { git = "https://github.com/JemIIahh/triage-kit" }
