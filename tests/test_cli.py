@@ -1,12 +1,8 @@
-import pytest
+import argparse
 
-from issue_desk.cli import main
-
-# Each later task builds one of these and removes its name from the list.
-UNBUILT = ["doctor"]
+from issue_desk.cli import COMMANDS, build_parser
 
 
-@pytest.mark.parametrize("command", UNBUILT)
-def test_unbuilt_command_exits_2_and_says_so(command, capsys):
-    assert main([command]) == 2
-    assert "not built yet" in capsys.readouterr().err
+def test_every_subcommand_has_a_handler_and_every_handler_a_subcommand():
+    sub = next(a for a in build_parser()._actions if isinstance(a, argparse._SubParsersAction))
+    assert set(sub.choices) == set(COMMANDS)

@@ -21,10 +21,12 @@ from triage_kit.claims import anonymise, build_scorecard, render_scorecard
 from triage_kit.gh import GhError, GitError, Runner, fetch_issue, list_open_issue_summaries, list_open_prs, run_gh, run_git
 from triage_kit.models import Issue, PullRequest
 from triage_kit.seed import seed_practice
+
+from issue_desk.doctor import run_doctor
 from triage_kit.mirror import mirror_issue
 from triage_kit.sweep import hot_issues, render_sweep
 
-UNBUILT = ("doctor",)
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
 # Pull-request checkouts live here, outside every folder an agent works in, so a PR's own
 # CLAUDE.md or .claude/ is never loaded by an agent.
 DEFAULT_WORK_ROOT = Path.home() / ".cache" / "issue-desk" / "work"
@@ -68,9 +70,9 @@ def build_parser() -> argparse.ArgumentParser:
     seed.add_argument("issue", type=int, help="the sandbox issue the practice PRs close")
     seed.add_argument("--practice-dir", default=str(DEFAULT_PRACTICE_DIR), help="folder with BASE and the patches")
 
-    for name in UNBUILT:
-        stub = sub.add_parser(name)
-        stub.add_argument("args", nargs=argparse.REMAINDER)
+    doctor = sub.add_parser("doctor", help="check that gh, Docker, Claude Code and the agent safety rules are in place")
+    doctor.add_argument("--expect-account", help="the GitHub account gh should be logged in as")
+    doctor.add_argument("--mattermost", metavar="URL", help="also check that this Mattermost answers, e.g. http://localhost:8065")
     return parser
 
 
@@ -159,24 +161,30 @@ def cmd_seed_practice(args: argparse.Namespace, run: Runner, sleep: Sleeper, git
     return f"Opened {len(numbers)} practice PRs in {args.sandbox_repo} for #{args.issue}: {listed}"
 
 
+def cmd_doctor(args: argparse.Namespace, run: Runner, sleep: Sleeper, git: Runner) -> tuple[str, int]:
+    lines: list[str] = []
+    code = run_doctor(PROJECT_ROOT, args.expect_account, args.mattermost, gh=run, out=lines.append)
+    return "\n".join(lines), code
+
+
 COMMANDS = {
     "sweep": cmd_sweep,
     "scorecard": cmd_scorecard,
     "mirror": cmd_mirror,
     "bench": cmd_bench,
     "seed-practice": cmd_seed_practice,
+    "doctor": cmd_doctor,
 }
 
 
 def main(argv: list[str] | None = None, *, run: Runner = run_gh, sleep: Sleeper = time.sleep, git: Runner = run_git) -> int:
     args = build_parser().parse_args(argv)
-    handler = COMMANDS.get(args.command)
-    if handler is None:
-        print(f"issue-desk {args.command}: not built yet", file=sys.stderr)
-        return 2
+    handler = COMMANDS[args.command]
     try:
-        print(handler(args, run, sleep, git))
+        result = handler(args, run, sleep, git)
     except (GhError, GitError, ValueError) as err:
         print(f"issue-desk {args.command}: {err}", file=sys.stderr)
         return 1
-    return 0
+    text, code = result if isinstance(result, tuple) else (result, 0)
+    print(text)
+    return code
