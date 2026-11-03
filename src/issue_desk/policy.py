@@ -22,6 +22,14 @@ REQUIRED_DENY: tuple[str, ...] = (
     "Bash(gh auth token:*)",
     "Bash(uv run issue-desk mirror:*)",
     "Bash(uv run issue-desk seed-practice:*)",
+    # Forms the prefix rules above would miss: git global flags before "push", and the
+    # maintainer-only commands run without "uv run".
+    "Bash(git -C:*)",
+    "Bash(git -c:*)",
+    "Bash(issue-desk mirror:*)",
+    "Bash(issue-desk seed-practice:*)",
+    "Bash(python -m issue_desk:*)",
+    "Bash(uv run python -m issue_desk:*)",
 )
 
 # Written into every room's instructions (spec: "Approval rules").

@@ -16,7 +16,13 @@
       "Bash(git push:*)",
       "Bash(gh auth token:*)",
       "Bash(uv run issue-desk mirror:*)",
-      "Bash(uv run issue-desk seed-practice:*)"
+      "Bash(uv run issue-desk seed-practice:*)",
+      "Bash(git -C:*)",
+      "Bash(git -c:*)",
+      "Bash(issue-desk mirror:*)",
+      "Bash(issue-desk seed-practice:*)",
+      "Bash(python -m issue_desk:*)",
+      "Bash(uv run python -m issue_desk:*)"
     ]
   }
 }
