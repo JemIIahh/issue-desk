@@ -43,3 +43,17 @@ Gotchas found:
 - scout, asked to draft the Direction, cited where each of the three lines came from and asked what to keep off GitHub: good behaviour to keep.
 
 Gate-check fallback: not needed
+
+## Task 10: dress rehearsal 1 (2026-11-03 night)
+
+Played the maintainer through issue #11 on the sandbox: sweep, open, scout's triage, the Scope/Install/Tests edit, `post it` (card), `@bench compare`, `go with 12`, `post it` (three cards), `@desk digest`.
+
+What the rehearsal found:
+
+- **scout's first comment named files outside the Scope** the maintainer had just set. Fixed in the scout instruction (the body must stay inside `Scope:`; rewrite it if not).
+- **desk's doctor line was vague.** desk now reports the real `doctor` output and explains each ✗ line.
+- **Asking `@bench compare` a second time does nothing new:** Switch tells the agent "this request already ran" and bench replies with the earlier summary and offers "re-run". Harmless; a recording is made on a fresh room so it does not come up.
+- **Approval card numbers run on through a room.** scout's comment is `A1`, bench's three notes are `A2` to `A4`. Anything that answers cards must take the next unanswered one, not a fixed `A1`.
+- **bench's drafts were accurate and polite** (#13 failed its tests, #14 edited CI config and dependencies, #15 added a network call and read credentials); #12, the pick, got no note. Each note posted only after its own card.
+- **desk's digest** listed what came in (55 claims: 42 bare, 12 plans), what was decided and what is waiting.
+- Speed: bench about 11 minutes for four PRs on a warm machine, scout about 3 minutes.
