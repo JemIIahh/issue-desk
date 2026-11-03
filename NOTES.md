@@ -30,4 +30,16 @@ Gotchas found (for the README "Try it"):
 - Templates screen in 0.40.1 has no "Runs" tab; check Your Rooms instead.
 - Timings: `open 1` about 35 to 60 s, scout's triage about 2 minutes.
 
+## Tasks 8 and 9: bench and the practice PRs, live (2026-11-03 night)
+
+Acceptance in the issue room on the sandbox: `@bench compare` tested all four practice PRs in the sealed box and posted the table. #7 passed with nothing flagged (recommended); #8 failed its tests; #9 passed but listed `.github/workflows/ci.yml`, `.prettierrc`, `README.md` +1 more as out of scope and `dependencies changed`; #10 (the sneaky one) passed its tests but was flagged `network call added, reads credentials, blocked network attempt`. `@bench go with 7` drafted three short, polite notes (shown in the room first, based only on the box's output). `@bench post it` raised three approval cards in turn (A1, A2, A3 — the next card appears after the previous one is answered); after approval each note appeared on its sandbox PR.
+
+Gotchas found:
+
+- **bench cannot know a PR's own new test file from the README or CI**, and plain `npm test` would pass the buggy PR. So scout saves its draft as a room document `Direction` ending with `Scope:` / `Install:` / `Tests:` lines (the maintainer can change them in chat); bench reads them and asks only when one is missing. The three lines are for bench and stay off GitHub.
+- A clone made with `git init` + `git remote add` has no `origin/HEAD`; the CLI now takes the base from the repo's default branch on GitHub.
+- **Speed:** the box installs dependencies per PR, then saves that layer; about 3 minutes per PR, 14 minutes for four. bench posts "still running" meanwhile and its status line keeps showing the first seconds. An install cache keyed on the lockfile would cut it (not built).
+- In the sandbox every practice PR is by the owner, so the Author column reads `maintainer` for all four.
+- scout, asked to draft the Direction, cited where each of the three lines came from and asked what to keep off GitHub: good behaviour to keep.
+
 Gate-check fallback: not needed
