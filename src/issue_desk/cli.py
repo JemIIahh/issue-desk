@@ -1,6 +1,7 @@
 """The issue-desk command line. It wraps triage-kit; subcommands are filled in task by task."""
 
 import argparse
+import json
 import sys
 import time
 from collections.abc import Callable
@@ -58,7 +59,7 @@ def build_parser() -> argparse.ArgumentParser:
     bench.add_argument("--test-cmd", required=True, help="the command that runs the repo's tests")
     bench.add_argument("--install-cmd", help="the command that installs dependencies (runs with network, scripts off)")
     bench.add_argument("--image", default="node:20-slim", help="the Docker image the tests run in")
-    bench.add_argument("--base", default="origin/HEAD", help="what each PR is diffed against")
+    bench.add_argument("--base", help="what each PR is diffed against (default: origin/<the repo's default branch>, as your clone has it)")
     bench.add_argument("--work-root", default=str(DEFAULT_WORK_ROOT), help=argparse.SUPPRESS)
 
     seed = sub.add_parser("seed-practice", help="open practice PRs in your own PRIVATE sandbox repo, to rehearse a comparison")
@@ -125,9 +126,15 @@ def author_pseudonyms(issue: Issue, prs: list[PullRequest]) -> dict[str, str]:
     return names
 
 
+def default_base(repo: str, run: Runner) -> str:
+    """The repo's default branch as the local clone has it. A clone made by `git init` has no origin/HEAD."""
+    return f"origin/{json.loads(run(['api', f'repos/{repo}']))['default_branch']}"
+
+
 def cmd_bench(args: argparse.Namespace, run: Runner, sleep: Sleeper, git: Runner) -> str:
-    if args.base.startswith("-"):
-        raise ValueError(f"--base {args.base!r} looks like an option, not a git ref")
+    base = args.base or default_base(args.repo, run)
+    if base.startswith("-"):
+        raise ValueError(f"--base {base!r} looks like an option, not a git ref")
     prs = sorted(prs_for_issue(args.repo, args.issue, run), key=lambda p: p.number)
     if not prs:
         return f"No open pull requests close #{args.issue}."
@@ -136,8 +143,8 @@ def cmd_bench(args: argparse.Namespace, run: Runner, sleep: Sleeper, git: Runner
     results = []
     for pr in prs:
         worktree = prepare_worktree(repo_dir, pr, root)
-        files, added, deleted = diff_stats(worktree, args.base)
-        diff_text = run_git(["-C", str(worktree), "diff", f"{args.base}...HEAD"])
+        files, added, deleted = diff_stats(worktree, base)
+        diff_text = run_git(["-C", str(worktree), "diff", f"{base}...HEAD"])
         status, tail, runtime = run_tests(worktree, args.image, args.install_cmd, args.test_cmd)
         flags = risk_flags(files, diff_text) + runtime
         results.append(

@@ -103,6 +103,7 @@ agents:
          README, CI file and package scripts, and say in the room where each came from. Where you are
          unsure, ask the maintainer instead of guessing.
       4. Only when the maintainer says "post it", post it with `gh issue comment <issue> --repo <repo>`.
+         Leave those three lines out of the comment you post: they are for bench, not for GitHub.
          That raises an approval card, and the card is the gate. Post nothing else to GitHub.
 
       Never run `mirror` or `seed-practice`: those are the maintainer's own commands. Follow the room rules.

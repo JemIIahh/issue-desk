@@ -158,6 +158,10 @@ def test_scout_saves_the_direction_as_a_room_document_that_ends_with_scope_insta
         assert needed in text, needed
 
 
+def test_scout_keeps_the_three_settings_lines_off_the_comment_it_posts():
+    assert "leave those three lines out of the comment you post" in instructions("scout").lower()
+
+
 def test_bench_reads_scope_install_and_tests_from_the_direction_document_and_never_guesses_them():
     text = instructions("bench")
     for needed in ("room document named Direction", "Scope:", "Install:", "Tests:", "do not guess"):

@@ -63,6 +63,7 @@ def routes(*, commenters=("alice",)):
         ],
         "repos/o/r/issues/5/comments": [comments],
         "repos/o/r/issues/5": [issue_raw(5)],
+        "repos/o/r": {"default_branch": "main"},  # keep last: routes match by prefix
     }
 
 
@@ -145,6 +146,13 @@ def test_bench_with_no_matching_pr_says_so_and_exits_0(capsys, clone, work, fake
     assert bench(clone, work, run=fake_gh(only_other)) == 0
     assert "No open pull requests close #5" in capsys.readouterr().out
     assert fake_tests.calls == []
+
+
+def test_bench_finds_the_base_from_the_repos_default_branch_when_the_clone_has_no_origin_head(capsys, clone, work, fake_tests):
+    # A clone made with `git init` + `git remote add` has no origin/HEAD; the default branch comes from GitHub.
+    subprocess.run(["git", "-C", str(clone), "remote", "set-head", "origin", "-d"], check=True, capture_output=True)
+    assert bench(clone, work) == 0
+    assert "| #7 |" in capsys.readouterr().out
 
 
 def test_bench_refuses_a_base_that_git_would_read_as_an_option(capsys, clone, work, fake_tests):
