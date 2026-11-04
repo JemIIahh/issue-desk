@@ -113,3 +113,14 @@ def test_ask_covers_wrappers_and_git_commands_that_bring_a_prs_code_onto_the_hos
 def test_deny_covers_git_global_flags_that_hide_the_subcommand():
     for rule in ("Bash(git --git-dir:*)", "Bash(git --work-tree:*)", "Bash(git --no-pager:*)", "Bash(git -P:*)"):
         assert rule in REQUIRED_DENY, rule
+
+
+def test_deny_covers_every_git_global_option_that_takes_effect_before_the_subcommand():
+    # git's global options are a short documented list, so unlike wrapper commands it can be completed.
+    for flag in (
+        "-C", "-c", "-p", "-P", "--paginate", "--no-pager", "--bare", "--git-dir", "--work-tree", "--namespace",
+        "--exec-path", "--config-env", "--super-prefix", "--no-replace-objects", "--no-lazy-fetch",
+        "--no-optional-locks", "--no-advice", "--literal-pathspecs", "--glob-pathspecs", "--noglob-pathspecs",
+        "--icase-pathspecs",
+    ):
+        assert f"Bash(git {flag}:*)" in REQUIRED_DENY, flag

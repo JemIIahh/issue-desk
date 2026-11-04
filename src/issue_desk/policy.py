@@ -112,6 +112,21 @@ REQUIRED_DENY: tuple[str, ...] = (
     "Bash(git --work-tree:*)",
     "Bash(git --no-pager:*)",
     "Bash(git -P:*)",
+    "Bash(git -p:*)",
+    "Bash(git --paginate:*)",
+    "Bash(git --bare:*)",
+    "Bash(git --namespace:*)",
+    "Bash(git --exec-path:*)",
+    "Bash(git --config-env:*)",
+    "Bash(git --super-prefix:*)",
+    "Bash(git --no-replace-objects:*)",
+    "Bash(git --no-lazy-fetch:*)",
+    "Bash(git --no-optional-locks:*)",
+    "Bash(git --no-advice:*)",
+    "Bash(git --literal-pathspecs:*)",
+    "Bash(git --glob-pathspecs:*)",
+    "Bash(git --noglob-pathspecs:*)",
+    "Bash(git --icase-pathspecs:*)",
 )
 
 # Written into every room's instructions (spec: "Approval rules").
