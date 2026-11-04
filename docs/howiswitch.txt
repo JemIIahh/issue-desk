@@ -1,0 +1,1 @@
+Three Claude Code agents in a Switch room read 55 "assign me" comments and test 4 competing PRs in a sealed box. I only press the approval card. Built Issue Desk for Flip the Switch: github.com/JemIIahh/issue-desk #HowISwitch
