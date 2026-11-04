@@ -6,7 +6,6 @@ import signal
 import sys
 import time
 from collections.abc import Callable
-from dataclasses import replace
 from pathlib import Path
 
 from triage_kit.bench import (
@@ -110,19 +109,31 @@ def paced(run: Runner, sleep: Sleeper, delay: float = POST_DELAY) -> Runner:
 
 
 def cmd_mirror(args: argparse.Namespace, run: Runner, sleep: Sleeper, git: Runner) -> str:
-    new = mirror_issue(args.source, args.issue, args.to, paced(run, sleep))
+    new = mirror_issue(args.source, args.issue, args.to, hide_bot_comments(paced(run, sleep)))
     return f"Mirrored {args.source}#{args.issue} → {args.to}#{new}"
 
 
-def fetch_human_issue(repo: str, number: int, run: Runner) -> Issue:
-    """The issue with comments written by GitHub apps (a login ending in "[bot]") left out.
+def hide_bot_comments(run: Runner) -> Runner:
+    """A runner whose comment pages leave out comments written by GitHub apps (a login ending in "[bot]").
 
     Run on two real Stellar Wave repos, 47% of all comments were the Wave bot's "application accepted" and
-    "issue completed" notices; scored as claims they read as plans and follow-ups. This must happen before
-    the logins are replaced, because afterwards a bot is just another contributor.
+    "issue completed" notices; scored or mirrored as claims they read as plans and follow-ups. This has to
+    happen before the logins are replaced, because afterwards a bot is just another contributor.
     """
-    issue = fetch_issue(repo, number, run)
-    return replace(issue, comments=tuple(c for c in issue.comments if not c.author.endswith("[bot]")))
+
+    def wrapper(args: list[str]) -> str:
+        out = run(args)
+        if "--slurp" not in args or not args[-1].split("?")[0].endswith("/comments"):
+            return out
+        pages = json.loads(out)
+        return json.dumps([[c for c in page if not ((c.get("user") or {}).get("login") or "").endswith("[bot]")] for page in pages])
+
+    return wrapper
+
+
+def fetch_human_issue(repo: str, number: int, run: Runner) -> Issue:
+    """The issue with its apps' comments left out."""
+    return fetch_issue(repo, number, hide_bot_comments(run))
 
 
 def author_pseudonyms(issue: Issue, prs: list[PullRequest]) -> dict[str, str]:
