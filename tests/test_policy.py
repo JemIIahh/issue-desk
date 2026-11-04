@@ -74,3 +74,27 @@ def test_deny_covers_account_repo_and_alias_commands_the_agents_never_need():
         "Bash(gh issue delete:*)",
     ):
         assert rule in REQUIRED_DENY, rule
+
+
+def test_deny_covers_the_flag_before_the_subcommand_forms():
+    # `gh pr -R owner/repo merge 7` is valid gh and does not start with "gh pr merge".
+    for group in ("pr", "issue", "release", "run", "workflow", "label"):
+        for flag in ("-R", "--repo"):
+            assert f"Bash(gh {group} {flag}:*)" in REQUIRED_DENY, (group, flag)
+
+
+def test_deny_covers_pr_commands_that_push_or_run_pr_code_and_groups_the_agents_never_need():
+    for rule in (
+        "Bash(gh pr update-branch:*)",  # pushes to the contributor's branch
+        "Bash(gh pr checkout:*)",  # puts the PR's code on the host; only `issue-desk bench` may run it
+        "Bash(gh cache:*)",
+        "Bash(gh project:*)",
+        "Bash(gh ruleset:*)",
+        "Bash(gh codespace:*)",
+        "Bash(gh org:*)",
+        "Bash(gh ssh-key:*)",
+        "Bash(gh gpg-key:*)",
+    ):
+        assert rule in REQUIRED_DENY, rule
+    for rule in ("Bash(gh pr lock:*)", "Bash(gh pr unlock:*)", "Bash(gh pr revert:*)"):
+        assert rule in REQUIRED_ASK, rule

@@ -28,6 +28,9 @@ REQUIRED_ASK: tuple[str, ...] = (
     "Bash(gh release:*)",
     "Bash(gh workflow:*)",
     "Bash(gh run:*)",
+    "Bash(gh pr lock:*)",
+    "Bash(gh pr unlock:*)",
+    "Bash(gh pr revert:*)",
     "Bash(python:*)",
     "Bash(python3:*)",
     "Bash(node:*)",
@@ -64,6 +67,30 @@ REQUIRED_DENY: tuple[str, ...] = (
     "Bash(gh secret:*)",
     "Bash(gh variable:*)",
     "Bash(gh issue delete:*)",
+    # `gh pr -R owner/repo merge 7` is valid gh and does not start with "gh pr merge", so the flag-first
+    # forms are denied; the agents put --repo after the subcommand.
+    "Bash(gh pr -R:*)",
+    "Bash(gh pr --repo:*)",
+    "Bash(gh issue -R:*)",
+    "Bash(gh issue --repo:*)",
+    "Bash(gh release -R:*)",
+    "Bash(gh release --repo:*)",
+    "Bash(gh run -R:*)",
+    "Bash(gh run --repo:*)",
+    "Bash(gh workflow -R:*)",
+    "Bash(gh workflow --repo:*)",
+    "Bash(gh label -R:*)",
+    "Bash(gh label --repo:*)",
+    # Pushes to a contributor's branch, and puts a PR's code on the host (only `issue-desk bench` runs it).
+    "Bash(gh pr update-branch:*)",
+    "Bash(gh pr checkout:*)",
+    "Bash(gh cache:*)",
+    "Bash(gh project:*)",
+    "Bash(gh ruleset:*)",
+    "Bash(gh codespace:*)",
+    "Bash(gh org:*)",
+    "Bash(gh ssh-key:*)",
+    "Bash(gh gpg-key:*)",
 )
 
 # Written into every room's instructions (spec: "Approval rules").
