@@ -2,8 +2,12 @@
 
 **Three Claude Code agents in a Switch chat room that read the flood of "assign me" comments and compare the competing pull requests, so the maintainer only decides.** Nothing reaches GitHub until the maintainer presses an approval card.
 
+![Issue Desk: scout's draft, the approval card, the post](assets/readme.gif)
+
 <!-- DEMO VIDEO: do not commit the file. Drag the .mp4 into a pull request comment, copy the
      github.com/user-attachments/assets/... URL it gives you, and paste it on a line of its own here. -->
+
+The demo video shows one real run on a private practice copy of an issue. The agents' replies and the GitHub comments are real; the maintainer's typing and clicking were played by a script (`video/record.mjs`) so the run can be repeated, so the "typing and approving" time in it does not include any time spent deciding.
 
 Built for the WeMakeDevs **Flip the Switch** hackathon, Track 01 (best business workflow).
 
@@ -116,6 +120,8 @@ agents/{desk,scout,bench}/.claude/settings.json   approval and deny rules for ea
 templates/                                        the two Switch templates
 src/issue_desk/                                   the command line (wraps triage-kit) and doctor
 fixtures/practice/                                BASE and the four practice patches
+video/                                            the scripts that recorded and cut the demo video (not needed to use Issue Desk)
+assets/readme.gif                                 the short clip at the top of this page
 tests/                                            uv run pytest -q   (Docker tests need Docker and the python:3.12-slim image)
 NOTES.md                                          what was learnt building it, including Switch gotchas
 ```
