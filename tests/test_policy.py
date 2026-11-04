@@ -116,11 +116,12 @@ def test_deny_covers_git_global_flags_that_hide_the_subcommand():
 
 
 def test_deny_covers_every_git_global_option_that_takes_effect_before_the_subcommand():
-    # git's global options are a short documented list, so unlike wrapper commands it can be completed.
+    # git's documented global options as of git 2.4x. A later git release can add one, so this is a best-effort
+    # list, not a proof of completeness.
     for flag in (
         "-C", "-c", "-p", "-P", "--paginate", "--no-pager", "--bare", "--git-dir", "--work-tree", "--namespace",
         "--exec-path", "--config-env", "--super-prefix", "--no-replace-objects", "--no-lazy-fetch",
         "--no-optional-locks", "--no-advice", "--literal-pathspecs", "--glob-pathspecs", "--noglob-pathspecs",
-        "--icase-pathspecs",
+        "--icase-pathspecs", "--attr-source",
     ):
         assert f"Bash(git {flag}:*)" in REQUIRED_DENY, flag

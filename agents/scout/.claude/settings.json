@@ -109,7 +109,8 @@
       "Bash(git --literal-pathspecs:*)",
       "Bash(git --glob-pathspecs:*)",
       "Bash(git --noglob-pathspecs:*)",
-      "Bash(git --icase-pathspecs:*)"
+      "Bash(git --icase-pathspecs:*)",
+      "Bash(git --attr-source:*)"
     ]
   }
 }

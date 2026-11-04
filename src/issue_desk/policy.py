@@ -127,6 +127,7 @@ REQUIRED_DENY: tuple[str, ...] = (
     "Bash(git --glob-pathspecs:*)",
     "Bash(git --noglob-pathspecs:*)",
     "Bash(git --icase-pathspecs:*)",
+    "Bash(git --attr-source:*)",
 )
 
 # Written into every room's instructions (spec: "Approval rules").
