@@ -98,3 +98,18 @@ def test_deny_covers_pr_commands_that_push_or_run_pr_code_and_groups_the_agents_
         assert rule in REQUIRED_DENY, rule
     for rule in ("Bash(gh pr lock:*)", "Bash(gh pr unlock:*)", "Bash(gh pr revert:*)"):
         assert rule in REQUIRED_ASK, rule
+
+
+def test_ask_covers_wrappers_and_git_commands_that_bring_a_prs_code_onto_the_host():
+    # `env gh pr merge 7` starts with "env", not "gh"; `git fetch origin pull/7/head && git checkout` puts PR code on the host.
+    for rule in (
+        "Bash(env:*)", "Bash(command:*)", "Bash(xargs:*)", "Bash(timeout:*)", "Bash(nohup:*)", "Bash(exec:*)", "Bash(sudo:*)",
+        "Bash(git fetch:*)", "Bash(git checkout:*)", "Bash(git switch:*)", "Bash(git worktree:*)",
+        "Bash(git apply:*)", "Bash(git am:*)", "Bash(git pull:*)",
+    ):
+        assert rule in REQUIRED_ASK, rule
+
+
+def test_deny_covers_git_global_flags_that_hide_the_subcommand():
+    for rule in ("Bash(git --git-dir:*)", "Bash(git --work-tree:*)", "Bash(git --no-pager:*)", "Bash(git -P:*)"):
+        assert rule in REQUIRED_DENY, rule

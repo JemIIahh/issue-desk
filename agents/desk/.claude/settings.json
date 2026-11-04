@@ -31,7 +31,21 @@
       "Bash(zsh:*)",
       "Bash(gh pr lock:*)",
       "Bash(gh pr unlock:*)",
-      "Bash(gh pr revert:*)"
+      "Bash(gh pr revert:*)",
+      "Bash(env:*)",
+      "Bash(command:*)",
+      "Bash(xargs:*)",
+      "Bash(timeout:*)",
+      "Bash(nohup:*)",
+      "Bash(exec:*)",
+      "Bash(sudo:*)",
+      "Bash(git fetch:*)",
+      "Bash(git checkout:*)",
+      "Bash(git switch:*)",
+      "Bash(git worktree:*)",
+      "Bash(git apply:*)",
+      "Bash(git am:*)",
+      "Bash(git pull:*)"
     ],
     "deny": [
       "Bash(gh pr merge:*)",
@@ -76,7 +90,11 @@
       "Bash(gh codespace:*)",
       "Bash(gh org:*)",
       "Bash(gh ssh-key:*)",
-      "Bash(gh gpg-key:*)"
+      "Bash(gh gpg-key:*)",
+      "Bash(git --git-dir:*)",
+      "Bash(git --work-tree:*)",
+      "Bash(git --no-pager:*)",
+      "Bash(git -P:*)"
     ]
   }
 }

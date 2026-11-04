@@ -37,6 +37,22 @@ REQUIRED_ASK: tuple[str, ...] = (
     "Bash(bash:*)",
     "Bash(sh:*)",
     "Bash(zsh:*)",
+    # Wrappers (`env gh pr merge 7` starts with "env") and the git commands that bring a PR's code onto the
+    # host; only `issue-desk bench` should do that.
+    "Bash(env:*)",
+    "Bash(command:*)",
+    "Bash(xargs:*)",
+    "Bash(timeout:*)",
+    "Bash(nohup:*)",
+    "Bash(exec:*)",
+    "Bash(sudo:*)",
+    "Bash(git fetch:*)",
+    "Bash(git checkout:*)",
+    "Bash(git switch:*)",
+    "Bash(git worktree:*)",
+    "Bash(git apply:*)",
+    "Bash(git am:*)",
+    "Bash(git pull:*)",
 )
 
 # Never allowed, even with approval.
@@ -91,6 +107,11 @@ REQUIRED_DENY: tuple[str, ...] = (
     "Bash(gh org:*)",
     "Bash(gh ssh-key:*)",
     "Bash(gh gpg-key:*)",
+    # Git global flags that put something between "git" and the subcommand.
+    "Bash(git --git-dir:*)",
+    "Bash(git --work-tree:*)",
+    "Bash(git --no-pager:*)",
+    "Bash(git -P:*)",
 )
 
 # Written into every room's instructions (spec: "Approval rules").
