@@ -119,7 +119,7 @@ def test_bench_never_shows_real_logins_and_matches_the_scorecard_pseudonyms(caps
 def test_bench_hands_the_commands_to_the_sealed_runner(clone, work, fake_tests):
     bench(clone, work, "--install-cmd", "npm ci --ignore-scripts", "--image", "node:22-slim")
     assert {c["image"] for c in fake_tests.calls} == {"node:22-slim"}
-    assert {c["install"] for c in fake_tests.calls} == {"npm ci --ignore-scripts"}
+    assert {c["install"] for c in fake_tests.calls} == {cli.NO_INSTALL_SCRIPTS + "npm ci --ignore-scripts"}
     assert {c["test"] for c in fake_tests.calls} == {"npm test"}
 
 
@@ -188,3 +188,40 @@ def test_bench_runs_the_real_sealed_box(capsys, clone, work):
     rows = {line.split("|")[1].strip(): line for line in capsys.readouterr().out.splitlines() if line.startswith("| #")}
     assert "✅ pass" in rows["#7"]  # the PR that added tests/test_a.py
     assert "❌ fail" in rows["#8"]  # the file is missing there
+
+
+def test_bench_switches_install_scripts_off_whatever_the_install_command_says(clone, work, fake_tests):
+    # The install phase has network access, and a PR's package.json can add a postinstall script.
+    # scout takes `Install:` from the repo's CI file, which usually says plain `npm ci`.
+    bench(clone, work, "--install-cmd", "npm ci")
+    installs = {c["install"] for c in fake_tests.calls}
+    assert installs == {cli.NO_INSTALL_SCRIPTS + "npm ci"}
+    assert "npm_config_ignore_scripts=true" in cli.NO_INSTALL_SCRIPTS
+    assert cli.NO_INSTALL_SCRIPTS.rstrip().endswith(";")  # runs before the install command in `sh -c`
+
+
+def test_bench_cleans_up_when_it_is_terminated(clone, work, monkeypatch):
+    # A bench killed by a timeout or a stopped agent gets SIGTERM. Python skips `finally` blocks on
+    # SIGTERM unless it is turned into an exit, and the sealed runner's scratch copy (with node_modules)
+    # and its saved install image are removed in `finally` blocks.
+    import os
+    import signal
+
+    cleaned = []
+
+    def killed_midway(worktree, image, install_cmd, test_cmd, timeout=300):
+        try:
+            os.kill(os.getpid(), signal.SIGTERM)
+        finally:
+            cleaned.append("scratch removed")
+        return "pass", "ok", ()
+
+    monkeypatch.setattr(cli, "run_tests", killed_midway)
+    previous = signal.getsignal(signal.SIGTERM)
+    try:
+        with pytest.raises(SystemExit) as stopped:
+            bench(clone, work)
+    finally:
+        signal.signal(signal.SIGTERM, previous)
+    assert stopped.value.code == 128 + signal.SIGTERM
+    assert cleaned == ["scratch removed"]

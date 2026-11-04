@@ -7,7 +7,28 @@
       "Bash(gh issue edit:*)",
       "Bash(gh label:*)",
       "Bash(gh api:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(gh pr edit:*)",
+      "Bash(gh pr create:*)",
+      "Bash(gh pr ready:*)",
+      "Bash(gh pr reopen:*)",
+      "Bash(gh issue create:*)",
+      "Bash(gh issue reopen:*)",
+      "Bash(gh issue lock:*)",
+      "Bash(gh issue unlock:*)",
+      "Bash(gh issue pin:*)",
+      "Bash(gh issue unpin:*)",
+      "Bash(gh issue transfer:*)",
+      "Bash(gh issue develop:*)",
+      "Bash(gh release:*)",
+      "Bash(gh workflow:*)",
+      "Bash(gh run:*)",
+      "Bash(python:*)",
+      "Bash(python3:*)",
+      "Bash(node:*)",
+      "Bash(bash:*)",
+      "Bash(sh:*)",
+      "Bash(zsh:*)"
     ],
     "deny": [
       "Bash(gh pr merge:*)",
@@ -22,7 +43,16 @@
       "Bash(issue-desk mirror:*)",
       "Bash(issue-desk seed-practice:*)",
       "Bash(python -m issue_desk:*)",
-      "Bash(uv run python -m issue_desk:*)"
+      "Bash(uv run python -m issue_desk:*)",
+      "Bash(gh alias:*)",
+      "Bash(gh extension:*)",
+      "Bash(gh auth:*)",
+      "Bash(gh config:*)",
+      "Bash(gh repo:*)",
+      "Bash(gh gist:*)",
+      "Bash(gh secret:*)",
+      "Bash(gh variable:*)",
+      "Bash(gh issue delete:*)"
     ]
   }
 }

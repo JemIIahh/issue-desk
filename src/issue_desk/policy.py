@@ -2,7 +2,9 @@
 
 AGENTS = ("desk", "scout", "bench")
 
-# Every GitHub write raises an approval card.
+# Rooms run in auto mode: a command that matches no rule runs with no card. So the ask list names every
+# GitHub write the agents could plausibly run (not just the ones they are told to use), and the interpreters
+# that could wrap one, so a roundabout form raises a card too.
 REQUIRED_ASK: tuple[str, ...] = (
     "Bash(gh issue comment:*)",
     "Bash(gh pr comment:*)",
@@ -11,6 +13,27 @@ REQUIRED_ASK: tuple[str, ...] = (
     "Bash(gh label:*)",
     "Bash(gh api:*)",
     "Bash(curl:*)",
+    "Bash(gh pr edit:*)",
+    "Bash(gh pr create:*)",
+    "Bash(gh pr ready:*)",
+    "Bash(gh pr reopen:*)",
+    "Bash(gh issue create:*)",
+    "Bash(gh issue reopen:*)",
+    "Bash(gh issue lock:*)",
+    "Bash(gh issue unlock:*)",
+    "Bash(gh issue pin:*)",
+    "Bash(gh issue unpin:*)",
+    "Bash(gh issue transfer:*)",
+    "Bash(gh issue develop:*)",
+    "Bash(gh release:*)",
+    "Bash(gh workflow:*)",
+    "Bash(gh run:*)",
+    "Bash(python:*)",
+    "Bash(python3:*)",
+    "Bash(node:*)",
+    "Bash(bash:*)",
+    "Bash(sh:*)",
+    "Bash(zsh:*)",
 )
 
 # Never allowed, even with approval.
@@ -30,6 +53,17 @@ REQUIRED_DENY: tuple[str, ...] = (
     "Bash(issue-desk seed-practice:*)",
     "Bash(python -m issue_desk:*)",
     "Bash(uv run python -m issue_desk:*)",
+    # Account, repo and alias commands the agents never need ("gh auth status --show-token" prints the
+    # token; an alias can hide "pr merge" behind another name).
+    "Bash(gh alias:*)",
+    "Bash(gh extension:*)",
+    "Bash(gh auth:*)",
+    "Bash(gh config:*)",
+    "Bash(gh repo:*)",
+    "Bash(gh gist:*)",
+    "Bash(gh secret:*)",
+    "Bash(gh variable:*)",
+    "Bash(gh issue delete:*)",
 )
 
 # Written into every room's instructions (spec: "Approval rules").

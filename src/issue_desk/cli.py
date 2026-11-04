@@ -2,6 +2,7 @@
 
 import argparse
 import json
+import signal
 import sys
 import time
 from collections.abc import Callable
@@ -30,6 +31,9 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 # Pull-request checkouts live here, outside every folder an agent works in, so a PR's own
 # CLAUDE.md or .claude/ is never loaded by an agent.
 DEFAULT_WORK_ROOT = Path.home() / ".cache" / "issue-desk" / "work"
+# The install phase has network access and a PR's package.json can add a postinstall script, while the
+# install command comes from the repo's CI file (usually plain `npm ci`), so scripts are switched off here.
+NO_INSTALL_SCRIPTS = "export npm_config_ignore_scripts=true YARN_ENABLE_SCRIPTS=false; "
 # The practice patches ship with the repo (see fixtures/practice/README.md for where they came from).
 DEFAULT_PRACTICE_DIR = Path(__file__).resolve().parents[2] / "fixtures" / "practice"
 
@@ -142,12 +146,15 @@ def cmd_bench(args: argparse.Namespace, run: Runner, sleep: Sleeper, git: Runner
         return f"No open pull requests close #{args.issue}."
     names = author_pseudonyms(fetch_issue(args.repo, args.issue, run), prs)
     repo_dir, root = Path(args.repo_dir), Path(args.work_root)
+    install_cmd = NO_INSTALL_SCRIPTS + args.install_cmd if args.install_cmd else None
+    # SIGTERM (a Bash timeout, a stopped agent) must unwind through the runner's `finally` blocks
+    signal.signal(signal.SIGTERM, lambda signum, frame: sys.exit(128 + signum))
     results = []
     for pr in prs:
         worktree = prepare_worktree(repo_dir, pr, root)
         files, added, deleted = diff_stats(worktree, base)
         diff_text = run_git(["-C", str(worktree), "diff", f"{base}...HEAD"])
-        status, tail, runtime = run_tests(worktree, args.image, args.install_cmd, args.test_cmd)
+        status, tail, runtime = run_tests(worktree, args.image, install_cmd, args.test_cmd)
         flags = risk_flags(files, diff_text) + runtime
         results.append(
             PrResult(pr.number, names[pr.author.lower()], len(files), added, deleted, out_of_scope(files, args.scope), status, tail, flags)

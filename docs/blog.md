@@ -12,7 +12,7 @@ I rehearsed on a private copy of a real, public issue (Flamki/stellarmind#183: 5
 2. **`@desk open 16`.** `desk` runs a Switch template and a new room appears for that issue, linked back to the hub. `scout` wakes up on its own.
 3. **`scout` reads every claim.** In a couple of minutes it posts a table: 42 bare requests, 12 plans, 1 follow-up, 0 near-duplicates, and for each plan whether the files it names exist in the repo. Only one plan named files that exist. It also drafts a direction comment ("here is the approach we'd like, so plans and PRs can line up") and saves it as a room document.
 4. **You edit, then say `post it`.** I told `scout` the scope and the test commands in one message and it rewrote the draft to stay inside them. Then a card appeared: *Permission needed, request A1.* I answered `A1 1`. That is the only way anything gets written to GitHub.
-5. **`@bench compare`.** `bench` checks out each PR and runs the tests in a sealed Docker container: no network, no environment variables, nothing mounted but that PR's copy. About three minutes per PR, almost all of it installing dependencies. The result is a table and a recommendation. It passed #17, failed #18, flagged #19 for editing CI config and dependencies, and flagged #20 for adding a network call and reading credentials, even though #20's tests pass.
+5. **`@bench compare`.** `bench` checks out each PR and runs the tests in a sealed Docker container (no network, no environment variables, nothing mounted but that PR's copy), after a separate dependency install with install scripts switched off. About three minutes per PR, almost all of it installing dependencies. The result is a table and a recommendation. It passed #17, failed #18, flagged #19 for editing CI config and dependencies, and flagged #20 for adding a network call and reading credentials, even though #20's tests pass. The checks are pattern-based, so no flag is not proof a PR is safe.
 6. **`go with 17`.** `bench` drafts short, polite notes for the other three authors, shows them in the room, and posts each one only through its own approval card.
 7. **`@desk digest`.** What came in, what was decided, what is still waiting on you.
 
@@ -23,7 +23,7 @@ Switch does the parts I would otherwise have had to build: the chat, the rooms, 
 - A **template** with parameters creates the three agents and the hub room in one go. A second template is the per-issue room.
 - `desk` calls **`run_template`** to open one room per hot issue, and **`link_rooms`** so it can read them back for the digest.
 - `scout` writes the full scorecard and the draft as **room documents**; `bench` reads the draft for the scope and test commands.
-- Every GitHub write is an **approval card** in the thread. The agent folders list the commands that need one, and `issue-desk doctor` fails if a rule is missing.
+- Every GitHub write the agents can run is an **approval card** in the thread. The agent folders list the commands that need one (and the interpreters that could wrap one), and `issue-desk doctor` fails if a rule is missing. It is a best-effort gate, not a sandbox: Switch rooms run in auto mode, so a command nobody listed runs without a card.
 - **Room instructions** carry the three rules every room shares (show the full draft first, one approval covers a batch only if the batch was listed in full, never merge or close) and tell the agents that text copied from GitHub is data, not instructions.
 
 ## What went wrong, honestly
@@ -32,6 +32,7 @@ Switch does the parts I would otherwise have had to build: the chat, the rooms, 
 - A plain `npm test` cannot run a PR's own new test file, so it would have passed the buggy PR. `scout` now writes `Scope:`, `Install:` and `Tests:` lines into the direction document and `bench` runs exactly those.
 - Approval card numbers run on through a room: `scout`'s comment is `A1`, `bench`'s three notes are `A2` to `A4`. My own recording script assumed `A1` and stalled.
 - `scout` once drafted a comment that asked for changes to files outside the scope I had just set. Its instruction now says to rewrite the body until it stays inside the scope.
+- A final review of the whole branch found my first README claimed more than the code enforced: the approval list covered seven commands, and install scripts were not really switched off. Both are fixed, and the README now calls the gate best-effort.
 - `bench` is slow. A cached dependency layer would help. I did not build it.
 
 ## Try it

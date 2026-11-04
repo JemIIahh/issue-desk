@@ -25,7 +25,7 @@ STEPS = {
     4: ("2 · A ROOM PER ISSUE", "Each hot issue gets its own room, opened by an agent from a template.", "run_template and link_rooms: desk builds the room, scout and bench join it."),
     5: ("3 · SCOUT", "Scout reads every claim and checks it against the real code.", "Bare requests versus plans, files that exist (✓) or don't (✗), near-duplicates."),
     6: ("4 · YOU DECIDE", "Nothing reaches GitHub until you say so.", "“post it” raises an approval card. You answer it in the thread: allow once, or decline."),
-    7: ("5 · BENCH", "A second agent compares the competing PRs, safely.", "Each PR is tested in a sealed box: no network, no credentials."),
+    7: ("5 · BENCH", "A second agent compares the competing PRs, safely.", "Each PR's tests run in a sealed box: no network, no credentials."),
     8: ("6 · YOUR CALL", "You make the call. The agents write it up.", "Polite review notes, each posted only through its own approval card."),
     9: ("7 · DIGEST", "What came in, what was decided, what is waiting on you.", ""),
 }
