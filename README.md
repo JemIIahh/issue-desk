@@ -104,6 +104,7 @@ To start over, close the old issue and PRs in the sandbox, delete the rooms and 
 - **bench is slow.** About three minutes per pull request, almost all of it installing dependencies. Cached installs would help; not built.
 - **The test image defaults to `node:20-slim`.** Other stacks pass `--image`.
 - **Comment scoring is a heuristic.** It reports evidence (files that exist, near-duplicates) and never a verdict on a person.
+- **Tested on other real threads, read-only.** Besides the demo issue, I ran the scorecard on 289 issue threads (1,217 comments) from two public Stellar Wave repos. That found a bug the demo thread could not show: 568 of those comments (47%) were the Wave bot's "application accepted" and "issue completed" notices, which were being scored as claims (321 plans and 285 follow-ups). Comments written by GitHub apps are now left out, which leaves 37 plans and 1 follow-up; those labels are the scorecard's own, not checked by hand. Bots that post as an ordinary user are not caught, and `sweep`'s comment counts still include bot comments.
 
 ## What was written when (disclosure)
 

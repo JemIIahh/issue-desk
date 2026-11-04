@@ -33,6 +33,7 @@ Switch does the parts I would otherwise have had to build: the chat, the rooms, 
 - Approval card numbers run on through a room: `scout`'s comment is `A1`, `bench`'s three notes are `A2` to `A4`. My own recording script assumed `A1` and stalled.
 - `scout` once drafted a comment that asked for changes to files outside the scope I had just set. Its instruction now says to rewrite the body until it stays inside the scope.
 - A final review of the whole branch found my first README claimed more than the code enforced: the approval list covered seven commands, and install scripts were not really switched off. Both are fixed, and the README now calls the gate best-effort.
+- My demo thread had no bots in it, so the scorecard looked right. Run on 289 real threads from two other Stellar Wave repos, 47% of the comments turned out to be the Wave bot's notices ("application accepted", "issue completed"), scored as 321 plans and 285 follow-ups. Comments written by GitHub apps are now left out of the count.
 - `bench` is slow. A cached dependency layer would help. I did not build it.
 
 ## Try it
